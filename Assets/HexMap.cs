@@ -13,8 +13,8 @@ public class HexMap : MonoBehaviour {
 
     public Material[] HexMaterials;
 
-    public readonly int NumRows = 20;
-    public readonly int NumColumns = 40;
+    public readonly int NumRows = 60;
+    public readonly int NumColumns = 120;
 
     public void GenerateMap()
     {
@@ -38,6 +38,7 @@ public class HexMap : MonoBehaviour {
                     this.transform
                 );
                 hexGO.GetComponent<HexComponent>().Hex = h;
+                hexGO.GetComponent<HexComponent>().HexMap = this;
 
                 MeshRenderer mr = hexGO.GetComponentInChildren<MeshRenderer>();
                 mr.material = HexMaterials[ Random.Range(0, HexMaterials.Length) ];

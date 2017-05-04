@@ -63,46 +63,41 @@ public class Hex {
 
     public Vector3 PositionFromCamera( Vector3 cameraPosition, float numRows, float numColumns)
     {
-        // TODO:  Allow have the camera do some kind of reset / rollback
-        //          if it gets too far from the origin.  That will help
-        //          optimize this relatively poor code, plus prevent
-        //          floating point issues.
-
         float mapHeight = numRows * HexVerticalSpacing();
         float mapWidth  = numColumns * HexHorizontalSpacing();
 
-        // First get the "base" position 
         Vector3 position = Position();
 
-        // Now offset based on where the camera is
-        //   i.e. How far from the camera is our tile?
-        position.x -= cameraPosition.x;
-        position.z -= cameraPosition.z;
-
-        // Are we more than mapWidth/2 away from the camera?
-        //   FIXME: This is a bit (a lot) brute-forceish
         if(allowWrapEastWest)
         {
-            while(position.x < -mapWidth/2) {
-                position.x += mapWidth;
-            }
-            while(position.x >= mapWidth/2) {
-                position.x -= mapWidth;
-            }
-        }
-        if(allowWrapNorthSouth)
-        {
-            while(position.z < -mapHeight/2) {
-                position.z += mapHeight;
-            }
-            while(position.z >= mapHeight/2) {
-                position.z -= mapHeight;
-            }
+            float howManyWidthsFromCamera = (position.x - cameraPosition.x) / mapWidth;
+
+            // We want howManyWidthsFromCamera to be between -0.5 to 0.5
+            if(howManyWidthsFromCamera > 0)
+                howManyWidthsFromCamera += 0.5f;
+            else
+                howManyWidthsFromCamera -= 0.5f;
+
+            int howManyWidthToFix = (int)howManyWidthsFromCamera;
+
+            position.x -= howManyWidthToFix * mapWidth;
         }
 
-        // De-offset the camera position
-        position.x += cameraPosition.x;
-        position.z += cameraPosition.z;
+        if(allowWrapNorthSouth)
+        {
+            float howManyHeightsFromCamera = (position.z - cameraPosition.z) / mapHeight;
+
+            // We want howManyWidthsFromCamera to be between -0.5 to 0.5
+            if(howManyHeightsFromCamera > 0)
+                howManyHeightsFromCamera += 0.5f;
+            else
+                howManyHeightsFromCamera -= 0.5f;
+
+            int howManyHeightsToFix = (int)howManyHeightsFromCamera;
+
+            position.z -= howManyHeightsToFix * mapHeight;
+        }
+
 
         return position;
     }
