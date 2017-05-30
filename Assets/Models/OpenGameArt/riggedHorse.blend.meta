@@ -1,0 +1,145 @@
+fileFormatVersion: 2
+guid: 6671ca2e255c3384b85bc18de7c066cd
+timeCreated: 1496154209
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: Armature
+    100002: BezierCurve
+    100004: BezierCurve_005
+    100006: Bone
+    100008: Bone_001
+    100010: Bone_001_L
+    100012: Bone_001_R
+    100014: Bone_002
+    100016: Bone_003
+    100018: Bone_004
+    100020: Bone_L
+    100022: Bone_L_001
+    100024: Bone_L_002
+    100026: Bone_L_003
+    100028: Bone_L_004
+    100030: Bone_L_005
+    100032: Bone_R
+    100034: Bone_R_001
+    100036: Bone_R_002
+    100038: Bone_R_003
+    100040: Bone_R_004
+    100042: Bone_R_005
+    100044: Plane
+    100046: //RootNode
+    100048: Sphere
+    100050: Sphere_002
+    400000: Armature
+    400002: BezierCurve
+    400004: BezierCurve_005
+    400006: Bone
+    400008: Bone_001
+    400010: Bone_001_L
+    400012: Bone_001_R
+    400014: Bone_002
+    400016: Bone_003
+    400018: Bone_004
+    400020: Bone_L
+    400022: Bone_L_001
+    400024: Bone_L_002
+    400026: Bone_L_003
+    400028: Bone_L_004
+    400030: Bone_L_005
+    400032: Bone_R
+    400034: Bone_R_001
+    400036: Bone_R_002
+    400038: Bone_R_003
+    400040: Bone_R_004
+    400042: Bone_R_005
+    400044: Plane
+    400046: //RootNode
+    400048: Sphere
+    400050: Sphere_002
+    2300000: BezierCurve
+    2300002: BezierCurve_005
+    2300004: Sphere
+    2300006: Sphere_002
+    3300000: BezierCurve
+    3300002: BezierCurve_005
+    3300004: Sphere
+    3300006: Sphere_002
+    4300000: Plane
+    4300002: Sphere_002
+    4300004: BezierCurve_005
+    4300006: BezierCurve
+    4300008: Sphere
+    7400000: Default Take
+    9500000: //RootNode
+    13700000: Plane
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

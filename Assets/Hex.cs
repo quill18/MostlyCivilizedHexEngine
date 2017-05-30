@@ -9,8 +9,10 @@ using UnityEngine;
 /// </summary>
 public class Hex {
 
-    public Hex(int q, int r)
+    public Hex(HexMap hexMap, int q, int r)
     {
+        this.hexMap = hexMap;
+
         this.Q = q;
         this.R = r;
         this.S = -(q + r);
@@ -23,11 +25,15 @@ public class Hex {
     public readonly int R;  // Row
     public readonly int S;
 
+    // Data for map generation and maybe in-game effects
+    public float Elevation;
+    public float Moisture;
+
+    private HexMap hexMap;
+
     static readonly float WIDTH_MULTIPLIER = Mathf.Sqrt(3) / 2;
 
     float radius = 1f;
-    bool allowWrapEastWest = true;
-    bool allowWrapNorthSouth = false;
 
     /// <summary>
     /// Returns the world-space position of this hex
@@ -68,7 +74,7 @@ public class Hex {
 
         Vector3 position = Position();
 
-        if(allowWrapEastWest)
+        if(hexMap.AllowWrapEastWest)
         {
             float howManyWidthsFromCamera = (position.x - cameraPosition.x) / mapWidth;
 
@@ -83,11 +89,10 @@ public class Hex {
             position.x -= howManyWidthToFix * mapWidth;
         }
 
-        if(allowWrapNorthSouth)
+        if(hexMap.AllowWrapNorthSouth)
         {
             float howManyHeightsFromCamera = (position.z - cameraPosition.z) / mapHeight;
 
-            // We want howManyWidthsFromCamera to be between -0.5 to 0.5
             if(howManyHeightsFromCamera > 0)
                 howManyHeightsFromCamera += 0.5f;
             else
@@ -101,4 +106,30 @@ public class Hex {
 
         return position;
     }
+
+    public static float Distance(Hex a, Hex b)
+    {
+        // WARNING: Probably Wrong for wrapping
+        int dQ = Mathf.Abs(a.Q - b.Q);
+        if(a.hexMap.AllowWrapEastWest)
+        {
+            if(dQ > a.hexMap.NumColumns / 2)
+                dQ = a.hexMap.NumColumns - dQ;
+        }
+
+        int dR = Mathf.Abs(a.R - b.R);
+        if(a.hexMap.AllowWrapNorthSouth)
+        {
+            if(dR > a.hexMap.NumRows / 2)
+                dR = a.hexMap.NumRows - dR;
+        }
+
+        return 
+            Mathf.Max( 
+                dQ,
+                dR,
+                Mathf.Abs(a.S - b.S)
+            );
+    }
+
 }
