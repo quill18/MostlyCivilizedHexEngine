@@ -70,14 +70,7 @@ public class Hex {
 
         if(allowWrapEastWest)
         {
-            float howManyWidthsFromCamera = (position.x - cameraPosition.x) / mapWidth;
-
-            // We want howManyWidthsFromCamera to be between -0.5 to 0.5
-            if(howManyWidthsFromCamera > 0)
-                howManyWidthsFromCamera += 0.5f;
-            else
-                howManyWidthsFromCamera -= 0.5f;
-
+            float howManyWidthsFromCamera = Mathf.round((position.x - cameraPosition.x) / mapWidth);
             int howManyWidthToFix = (int)howManyWidthsFromCamera;
 
             position.x -= howManyWidthToFix * mapWidth;
@@ -85,14 +78,7 @@ public class Hex {
 
         if(allowWrapNorthSouth)
         {
-            float howManyHeightsFromCamera = (position.z - cameraPosition.z) / mapHeight;
-
-            // We want howManyWidthsFromCamera to be between -0.5 to 0.5
-            if(howManyHeightsFromCamera > 0)
-                howManyHeightsFromCamera += 0.5f;
-            else
-                howManyHeightsFromCamera -= 0.5f;
-
+            float howManyHeightsFromCamera = Mathf.round((position.z - cameraPosition.z) / mapHeight);
             int howManyHeightsToFix = (int)howManyHeightsFromCamera;
 
             position.z -= howManyHeightsToFix * mapHeight;
