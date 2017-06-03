@@ -76,7 +76,7 @@ public class Hex {
 
         if(hexMap.AllowWrapEastWest)
         {
-            float howManyWidthsFromCamera = Mathf.round((position.x - cameraPosition.x) / mapWidth);
+            float howManyWidthsFromCamera = Mathf.Round((position.x - cameraPosition.x) / mapWidth);
             int howManyWidthToFix = (int)howManyWidthsFromCamera;
 
             position.x -= howManyWidthToFix * mapWidth;
@@ -84,7 +84,7 @@ public class Hex {
 
         if(hexMap.AllowWrapNorthSouth)
         {
-            float howManyHeightsFromCamera = Mathf.round((position.z - cameraPosition.z) / mapHeight);
+            float howManyHeightsFromCamera = Mathf.Round((position.z - cameraPosition.z) / mapHeight);
             int howManyHeightsToFix = (int)howManyHeightsFromCamera;
 
             position.z -= howManyHeightsToFix * mapHeight;
