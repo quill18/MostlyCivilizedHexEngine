@@ -82,9 +82,6 @@ public class CameraMouseController : MonoBehaviour
         Camera.main.transform.position = p;
 
         // Change camera angle
-        float lowZoom = minHeight + 3;
-        float highZoom = maxHeight - 10;
-
         Camera.main.transform.rotation = Quaternion.Euler (
             Mathf.Lerp (30, 75, Camera.main.transform.position.y / maxHeight),
             Camera.main.transform.rotation.eulerAngles.y,

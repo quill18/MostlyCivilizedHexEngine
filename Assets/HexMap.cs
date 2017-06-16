@@ -9,6 +9,21 @@ public class HexMap : MonoBehaviour {
         GenerateMap();
 	}
 
+    void Update()
+    {
+        // TESTING: Hit spacebar to advance to next turn
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            if(units != null)
+            {
+                foreach(Unit u in units)
+                {
+                    u.DoTurn();
+                }
+            }
+        }
+    }
+
     public GameObject HexPrefab;
 
     public Mesh MeshWater;
@@ -24,6 +39,8 @@ public class HexMap : MonoBehaviour {
     public Material MatGrasslands;
     public Material MatMountains;
     public Material MatDesert;
+
+    public GameObject UnitDwarfPrefab;
 
     // Tiles with height above whatever, is a whatever
     [System.NonSerialized] public float HeightMountain = 1f;
@@ -44,6 +61,10 @@ public class HexMap : MonoBehaviour {
 
     private Hex[,] hexes;
     private Dictionary<Hex, GameObject> hexToGameObjectMap;
+
+    private HashSet<Unit> units;
+    private Dictionary<Unit, GameObject> unitToGameObjectMap;
+
 
     public Hex GetHexAt(int x, int y)
     {
@@ -79,6 +100,19 @@ public class HexMap : MonoBehaviour {
             return null;
         }
     }
+
+    public Vector3 GetHexPosition(int q, int r)
+    {
+        Hex hex = GetHexAt(q, r);
+
+        return GetHexPosition(hex);
+    }
+
+    public Vector3 GetHexPosition(Hex hex)
+    {
+        return hex.PositionFromCamera( Camera.main.transform.position, NumRows, NumColumns );
+    }
+
 
     virtual public void GenerateMap()
     {
@@ -215,5 +249,24 @@ public class HexMap : MonoBehaviour {
         }
 
         return results.ToArray();
+    }
+
+    public void SpawnUnitAt( Unit unit, GameObject prefab, int q, int r )
+    {
+        if(units == null)
+        {
+            units = new HashSet<Unit>();
+            unitToGameObjectMap = new Dictionary<Unit, GameObject>();
+        }
+
+        Hex myHex = GetHexAt(q, r);
+        GameObject myHexGO = hexToGameObjectMap[myHex];
+        unit.SetHex(myHex);
+
+        GameObject unitGO = (GameObject)Instantiate(prefab, myHexGO.transform.position, Quaternion.identity, myHexGO.transform);
+        unit.OnUnitMoved += unitGO.GetComponent<UnitView>().OnUnitMoved;
+
+        units.Add(unit);
+        unitToGameObjectMap.Add(unit, unitGO);
     }
 }

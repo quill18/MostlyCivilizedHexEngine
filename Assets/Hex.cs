@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 /// <summary>
 /// The Hex class defines the grid position, world space position, size, 
@@ -11,7 +12,7 @@ public class Hex {
 
     public Hex(HexMap hexMap, int q, int r)
     {
-        this.hexMap = hexMap;
+        this.HexMap = hexMap;
 
         this.Q = q;
         this.R = r;
@@ -29,11 +30,13 @@ public class Hex {
     public float Elevation;
     public float Moisture;
 
-    private HexMap hexMap;
+    public readonly HexMap HexMap;
 
     static readonly float WIDTH_MULTIPLIER = Mathf.Sqrt(3) / 2;
 
     float radius = 1f;
+
+    HashSet<Unit> units;
 
     /// <summary>
     /// Returns the world-space position of this hex
@@ -67,14 +70,19 @@ public class Hex {
         return HexWidth();
     }
 
-    public Vector3 PositionFromCamera( Vector3 cameraPosition, float numRows, float numColumns)
+    public Vector3 PositionFromCamera()
+    {
+        return HexMap.GetHexPosition(this);
+    }
+
+    public Vector3 PositionFromCamera( Vector3 cameraPosition, float numRows, float numColumns )
     {
         float mapHeight = numRows * HexVerticalSpacing();
         float mapWidth  = numColumns * HexHorizontalSpacing();
 
         Vector3 position = Position();
 
-        if(hexMap.AllowWrapEastWest)
+        if(HexMap.AllowWrapEastWest)
         {
             float howManyWidthsFromCamera = Mathf.Round((position.x - cameraPosition.x) / mapWidth);
             int howManyWidthToFix = (int)howManyWidthsFromCamera;
@@ -82,7 +90,7 @@ public class Hex {
             position.x -= howManyWidthToFix * mapWidth;
         }
 
-        if(hexMap.AllowWrapNorthSouth)
+        if(HexMap.AllowWrapNorthSouth)
         {
             float howManyHeightsFromCamera = Mathf.Round((position.z - cameraPosition.z) / mapHeight);
             int howManyHeightsToFix = (int)howManyHeightsFromCamera;
@@ -98,17 +106,17 @@ public class Hex {
     {
         // WARNING: Probably Wrong for wrapping
         int dQ = Mathf.Abs(a.Q - b.Q);
-        if(a.hexMap.AllowWrapEastWest)
+        if(a.HexMap.AllowWrapEastWest)
         {
-            if(dQ > a.hexMap.NumColumns / 2)
-                dQ = a.hexMap.NumColumns - dQ;
+            if(dQ > a.HexMap.NumColumns / 2)
+                dQ = a.HexMap.NumColumns - dQ;
         }
 
         int dR = Mathf.Abs(a.R - b.R);
-        if(a.hexMap.AllowWrapNorthSouth)
+        if(a.HexMap.AllowWrapNorthSouth)
         {
-            if(dR > a.hexMap.NumRows / 2)
-                dR = a.hexMap.NumRows - dR;
+            if(dR > a.HexMap.NumRows / 2)
+                dR = a.HexMap.NumRows - dR;
         }
 
         return 
@@ -117,6 +125,29 @@ public class Hex {
                 dR,
                 Mathf.Abs(a.S - b.S)
             );
+    }
+
+    public void AddUnit( Unit unit )
+    {
+        if(units == null)
+        {
+            units = new HashSet<Unit>();
+        }
+
+        units.Add(unit);
+    }
+
+    public void RemoveUnit( Unit unit )
+    {
+        if(units != null)
+        {
+            units.Remove(unit);
+        }
+    }
+
+    public Unit[] Units()
+    {
+        return units.ToArray();
     }
 
 }
