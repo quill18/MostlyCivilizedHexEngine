@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using QPath;
+using System.Linq;
 
-public class Unit {
+public class Unit : IQPathUnit {
 
     public string Name = "Dwarf";
     public int HitPoints = 100;
@@ -38,9 +40,32 @@ public class Unit {
         }
     }
 
+    public void DUMMY_PATHING_FUNCTION()
+    {
+
+        /*QPath.CostEstimateDelegate ced = (IQPathTile a, IQPathTile b) => (
+            return Hex.Distance(a, b);
+        );*/
+
+        IQPathTile[] pathTiles = QPath.QPath.FindPath( 
+            Hex.HexMap, 
+            this,
+            Hex, 
+            Hex.HexMap.GetHexAt( Hex.Q + 6, Hex.R ), 
+            Hex.CostEstimate 
+        );
+
+        Hex[] pathHexes = System.Array.ConvertAll( pathTiles, a => (Hex)a );
+
+        Debug.Log("Got pathfinding path of length: " + pathHexes.Length);
+
+        SetHexPath(pathHexes);
+    }
+
     public void SetHexPath( Hex[] hexPath )
     {
         this.hexPath = new Queue<Hex>( hexPath );
+        this.hexPath.Dequeue(); // First hex is the one we're standing in, so throw it out.
     }
 
     public void DoTurn()
@@ -76,6 +101,13 @@ public class Unit {
 
         float baseTurnsToEnterHex = MovementCostToEnterHex(hex) / Movement; // Example: Entering a forest is "1" turn
 
+        if(baseTurnsToEnterHex < 0)
+        {
+            // Impassible terrain
+            Debug.Log("Impassible terrain at:" + hex.ToString());
+            return -99999;
+        }
+
         if(baseTurnsToEnterHex > 1)
         {
             // Even if something costs 3 to enter and we have a max move of 2, 
@@ -89,9 +121,9 @@ public class Unit {
         float turnsToDateWhole = Mathf.Floor(turnsToDate); // Example: 4.33 becomes 4
         float turnsToDateFraction = turnsToDate - turnsToDateWhole; // Example: 4.33 becomes 0.33
 
-        if( turnsToDateFraction < 0.01f || turnsToDateFraction > 0.99f )
+        if( (turnsToDateFraction > 0 && turnsToDateFraction < 0.01f) || turnsToDateFraction > 0.99f )
         {
-            Debug.LogError("Looks like we've got floating-point drift.");
+            Debug.LogError("Looks like we've got floating-point drift: " + turnsToDate);
 
             if( turnsToDateFraction < 0.01f )
                 turnsToDateFraction = 0;
@@ -152,4 +184,11 @@ public class Unit {
 
     }
 
+    /// <summary>
+    /// Turn cost to enter a hex (i.e. 0.5 turns if a movement cost is 1 and we have 2 max movement)
+    /// </summary>
+    public float CostToEnterHex( IQPathTile sourceTile, IQPathTile destinationTile )
+    {
+        return 1;
+    }
 }

@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using QPath;
 
-public class HexMap : MonoBehaviour {
+public class HexMap : MonoBehaviour, IQPathWorld {
 
 	// Use this for initialization
 	void Start () {
@@ -21,6 +22,17 @@ public class HexMap : MonoBehaviour {
                     u.DoTurn();
                 }
             }
+        }
+        if(Input.GetKeyDown(KeyCode.P))
+        {
+            if(units != null)
+            {
+                foreach(Unit u in units)
+                {
+                    u.DUMMY_PATHING_FUNCTION();
+                }
+            }
+
         }
     }
 
@@ -151,7 +163,6 @@ public class HexMap : MonoBehaviour {
                 hexGO.GetComponent<HexComponent>().Hex = h;
                 hexGO.GetComponent<HexComponent>().HexMap = this;
 
-                hexGO.GetComponentInChildren<TextMesh>().text = string.Format("{0},{1}", column, row);
 
             }
         }
@@ -173,6 +184,9 @@ public class HexMap : MonoBehaviour {
                 MeshRenderer mr = hexGO.GetComponentInChildren<MeshRenderer>();
                 MeshFilter mf = hexGO.GetComponentInChildren<MeshFilter>();
 
+                h.MovementCost = 1;
+
+
                 if(h.Elevation >= HeightFlat && h.Elevation < HeightMountain)
                 {
                     if(h.Moisture >= MoistureJungle)
@@ -184,6 +198,7 @@ public class HexMap : MonoBehaviour {
                         {
                             p.y += 0.25f;
                         }
+                        h.MovementCost = 2;
                         GameObject.Instantiate(JunglePrefab, p, Quaternion.identity, hexGO.transform);
                     }
                     else if(h.Moisture >= MoistureForest)
@@ -195,6 +210,7 @@ public class HexMap : MonoBehaviour {
                         {
                             p.y += 0.25f;
                         }
+                        h.MovementCost = 2;
                         GameObject.Instantiate(ForestPrefab, p, Quaternion.identity, hexGO.transform);
                     }
                     else if(h.Moisture >= MoistureGrasslands)
@@ -215,9 +231,11 @@ public class HexMap : MonoBehaviour {
                 {
                     mr.material = MatMountains;
                     mf.mesh = MeshMountain;
+                    h.MovementCost = -99;
                 }
                 else if(h.Elevation >= HeightHill)
                 {
+                    h.MovementCost = 2;
                     mf.mesh = MeshHill;
                 }
                 else if(h.Elevation >= HeightFlat)
@@ -226,12 +244,14 @@ public class HexMap : MonoBehaviour {
                 }
                 else
                 {
+                    h.MovementCost = -99;
                     mr.material = MatOcean;
                     mf.mesh = MeshWater;
                 }
 
-
-
+                hexGO.GetComponentInChildren<TextMesh>().text = 
+                    string.Format("{0},{1}\n{2}", column, row, h.BaseMovementCost());
+                
             }
         }
     }
