@@ -73,6 +73,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
     private Hex[,] hexes;
     private Dictionary<Hex, GameObject> hexToGameObjectMap;
+    private Dictionary<GameObject, Hex> gameObjectToHexMap;
 
     private HashSet<Unit> units;
     private Dictionary<Unit, GameObject> unitToGameObjectMap;
@@ -113,6 +114,26 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         }
     }
 
+    public Hex GetHexFromGameObject(GameObject hexGO)
+    {
+        if( gameObjectToHexMap.ContainsKey(hexGO) )
+        {
+            return gameObjectToHexMap[hexGO];
+        }
+
+        return null;
+    }
+
+    public GameObject GetHexGO(Hex h)
+    {
+        if( hexToGameObjectMap.ContainsKey(h) )
+        {
+            return hexToGameObjectMap[h];
+        }
+
+        return null;
+    }
+
     public Vector3 GetHexPosition(int q, int r)
     {
         Hex hex = GetHexAt(q, r);
@@ -132,6 +153,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
         hexes = new Hex[NumColumns, NumRows];
         hexToGameObjectMap = new Dictionary<Hex, GameObject>();
+        gameObjectToHexMap = new Dictionary<GameObject, Hex>();
 
         for (int column = 0; column < NumColumns; column++)
         {
@@ -158,6 +180,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
                 );
 
                 hexToGameObjectMap[h] = hexGO;
+                gameObjectToHexMap[hexGO] = h;
 
                 hexGO.name = string.Format("HEX: {0},{1}", column, row);
                 hexGO.GetComponent<HexComponent>().Hex = h;

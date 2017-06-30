@@ -47,25 +47,32 @@ public class Unit : IQPathUnit {
             return Hex.Distance(a, b);
         );*/
 
-        IQPathTile[] pathTiles = QPath.QPath.FindPath( 
+        Hex[] pathHexes = QPath.QPath.FindPath<Hex>( 
             Hex.HexMap, 
             this,
             Hex, 
             Hex.HexMap.GetHexAt( Hex.Q + 6, Hex.R ), 
             Hex.CostEstimate 
         );
-
-        Hex[] pathHexes = System.Array.ConvertAll( pathTiles, a => (Hex)a );
-
+            
         Debug.Log("Got pathfinding path of length: " + pathHexes.Length);
 
         SetHexPath(pathHexes);
     }
 
-    public void SetHexPath( Hex[] hexPath )
+    public void ClearHexPath()
     {
-        this.hexPath = new Queue<Hex>( hexPath );
-        this.hexPath.Dequeue(); // First hex is the one we're standing in, so throw it out.
+        this.hexPath = new Queue<Hex>();
+    }
+
+    public void SetHexPath( Hex[] hexArray )
+    {
+        this.hexPath = new Queue<Hex>( hexArray );
+
+        if(hexPath.Count > 0)
+        {
+            this.hexPath.Dequeue(); // First hex is the one we're standing in, so throw it out.
+        }
     }
 
     public void DoTurn()
@@ -104,7 +111,7 @@ public class Unit : IQPathUnit {
         if(baseTurnsToEnterHex < 0)
         {
             // Impassible terrain
-            Debug.Log("Impassible terrain at:" + hex.ToString());
+            //Debug.Log("Impassible terrain at:" + hex.ToString());
             return -99999;
         }
 

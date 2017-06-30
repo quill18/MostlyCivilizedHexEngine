@@ -9,9 +9,16 @@ public class MouseController : MonoBehaviour
     void Start ()
     {
         Update_CurrentFunc = Update_DetectModeStart;
+
+        hexMap = GameObject.FindObjectOfType<HexMap>();
+
+        lineRenderer = transform.GetComponentInChildren<LineRenderer>();
     }
 
     // Generic bookkeeping variables
+    HexMap hexMap;
+    Hex hexUnderMouse;
+    Hex hexLastUnderMouse;
     Vector3 lastMousePosition;  // From Input.mousePosition
 
     // Camera Dragging bookkeeping variables
@@ -21,12 +28,18 @@ public class MouseController : MonoBehaviour
 
     // Unit movement
     Unit selectedUnit = null;
+    Hex[] hexPath;
+    LineRenderer lineRenderer;
 
     delegate void UpdateFunc();
     UpdateFunc Update_CurrentFunc;
 
+    public LayerMask LayerIDForHexTiles;
+
     void Update()
     {
+        hexUnderMouse = MouseToHex();
+
         if( Input.GetKeyDown(KeyCode.Escape) )
         {
             CancelUpdateFunc();
@@ -38,6 +51,7 @@ public class MouseController : MonoBehaviour
         Update_ScrollZoom();
 
         lastMousePosition = Input.mousePosition;
+        hexLastUnderMouse = hexUnderMouse;
     }
 
     void CancelUpdateFunc()
@@ -45,6 +59,7 @@ public class MouseController : MonoBehaviour
         Update_CurrentFunc = Update_DetectModeStart;
 
         // Also do cleanup of any UI stuff associated with modes.
+        selectedUnit = null;
     }
 
     void Update_DetectModeStart()
@@ -62,6 +77,17 @@ public class MouseController : MonoBehaviour
 
             // TODO: Are we clicking on a hex with a unit?
             //          If so, select it
+
+            Unit[] us = hexUnderMouse.Units();
+
+            // TODO: Implement cycling through multiple units in the same tile
+
+            if(us.Length > 0)
+            {
+                selectedUnit = us[0];
+                Update_CurrentFunc = Update_UnitMovement;
+            }
+
         }
         else if( Input.GetMouseButton(0) && 
             Vector3.Distance( Input.mousePosition, lastMousePosition) > mouseDragThreshold )
@@ -80,6 +106,28 @@ public class MouseController : MonoBehaviour
 
     }
 
+    Hex MouseToHex()
+    {
+        Ray mouseRay = Camera.main.ScreenPointToRay (Input.mousePosition);
+        RaycastHit hitInfo;
+
+        int layerMask = LayerIDForHexTiles.value;
+
+        if( Physics.Raycast(mouseRay, out hitInfo, Mathf.Infinity, layerMask) )
+        {
+            // Something got hit
+            //Debug.Log( hitInfo.collider.name );
+
+            // The collider is a child of the "correct" game object that we want.
+            GameObject hexGO = hitInfo.rigidbody.gameObject;
+
+            return hexMap.GetHexFromGameObject(hexGO);
+        }
+
+        Debug.Log("Found nothing.");
+        return null;
+    }
+
     Vector3 MouseToGroundPlane(Vector3 mousePos)
     {
         Ray mouseRay = Camera.main.ScreenPointToRay (mousePos);
@@ -94,16 +142,55 @@ public class MouseController : MonoBehaviour
 
     void Update_UnitMovement ()
     {
-        if( Input.GetMouseButtonUp(1) )
+        if( Input.GetMouseButtonUp(1) || selectedUnit == null )
         {
             Debug.Log("Complete unit movement.");
 
-            // TODO: copy pathfinding path to unit's movement queue
+            if(selectedUnit != null)
+            {
+                selectedUnit.SetHexPath(hexPath);
+            }
 
             CancelUpdateFunc();
             return;
-
         }
+
+        // We have a selected unit
+
+        // Look at the hex under our mouse
+
+        // Is this a different hex than before (or we don't already have a path)
+        if( hexPath == null || hexUnderMouse != hexLastUnderMouse )
+        {
+            // Do a pathfinding search to that hex
+            hexPath = QPath.QPath.FindPath<Hex>( hexMap, selectedUnit, selectedUnit.Hex, hexUnderMouse, Hex.CostEstimate );
+
+
+            // draw the path
+            DrawPath(hexPath);
+        }
+
+    }
+
+    void DrawPath(Hex[] hexPath)
+    {
+        if(hexPath.Length == 0)
+        {
+            lineRenderer.enabled = false;
+            return;
+        }
+        lineRenderer.enabled = true;
+
+        Vector3[] ps = new Vector3[ hexPath.Length ];
+
+        for (int i = 0; i < hexPath.Length; i++)
+        {
+            GameObject hexGO = hexMap.GetHexGO(hexPath[i]);
+            ps[i] = hexGO.transform.position + (Vector3.up*0.1f);
+        }
+
+        lineRenderer.positionCount = ps.Length;
+        lineRenderer.SetPositions(ps);
     }
     
     void Update_CameraDrag ()
