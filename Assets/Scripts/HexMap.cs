@@ -10,19 +10,63 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         GenerateMap();
 	}
 
+    public bool AnimationIsPlaying = false;
+
     void Update()
     {
         // TESTING: Hit spacebar to advance to next turn
         if(Input.GetKeyDown(KeyCode.Space))
         {
-            if(units != null)
+            StartCoroutine( DoAllUnitMoves() );
+        }
+    }
+
+    IEnumerator DoAllUnitMoves()
+    {
+        if(units != null)
+        {
+            foreach(Unit u in units)
             {
-                foreach(Unit u in units)
-                {
-                    u.DoMove();
-                }
+                yield return DoUnitMoves( u );
             }
         }
+    }
+
+    public IEnumerator DoUnitMoves( Unit u )
+    {
+        // Is there any reason we should check HERE if a unit should be moving?
+        // I think the answer is no -- DoMove should just check to see if it needs
+        // to do anything, or just return immediately.
+        while( u.DoMove() )
+        {
+            Debug.Log("DoMove returned true -- will be called again.");
+            // TODO: Check to see if an animation is playing, if so
+            // wait for it to finish. 
+            while(AnimationIsPlaying) {
+                yield return null; // Wait one frame
+            }
+
+        }
+
+    }
+
+    public void EndTurn()
+    {
+        // First check to see if there are any units that have enqueued moves.
+            // Do those moves
+        // Now are any units waiting for orders? If so, halt EndTurn()
+
+        // Heal units that are resting
+
+        // Reset unit movement
+        foreach(Unit u in units)
+        {
+            u.RefreshMovement();
+        }
+
+
+        // Go to next player
+
     }
 
     public GameObject HexPrefab;
@@ -64,6 +108,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     private Dictionary<Hex, GameObject> hexToGameObjectMap;
     private Dictionary<GameObject, Hex> gameObjectToHexMap;
 
+    // TODO: Separate unit list for each player
     private HashSet<Unit> units;
     private Dictionary<Unit, GameObject> unitToGameObjectMap;
 

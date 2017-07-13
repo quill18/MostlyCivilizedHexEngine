@@ -202,6 +202,10 @@ public class MouseController : MonoBehaviour
             if(SelectedUnit != null)
             {
                 SelectedUnit.SetHexPath(hexPath);
+
+                // TODO: Tell Unit and/or HexMap to process unit movement
+
+                StartCoroutine( hexMap.DoUnitMoves(SelectedUnit) );
             }
 
             CancelUpdateFunc();
