@@ -79,9 +79,9 @@ public class Unit : IQPathUnit {
         return (this.hexPath == null ) ? null : this.hexPath.ToArray();
     }
 
-    public void DoTurn()
+    public void DoMove()
     {
-        Debug.Log("DoTurn");
+        Debug.Log("DoMove");
         // Do queued move
 
         if(hexPath == null || hexPath.Count == 0)

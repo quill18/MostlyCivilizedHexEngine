@@ -18,6 +18,8 @@ public class Hex : IQPathTile {
         this.Q = q;
         this.R = r;
         this.S = -(q + r);
+
+        units = new HashSet<Unit>();
     }
 
     // Q + R + S = 0

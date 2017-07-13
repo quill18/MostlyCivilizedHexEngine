@@ -19,7 +19,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
             {
                 foreach(Unit u in units)
                 {
-                    u.DoTurn();
+                    u.DoMove();
                 }
             }
         }
