@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using QPath;
+using System.Linq;
 
 public class HexMap : MonoBehaviour, IQPathWorld {
 
@@ -11,6 +12,9 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 	}
 
     public bool AnimationIsPlaying = false;
+
+    public delegate void CityCreatedDelegate ( City city, GameObject cityGO );
+    public event CityCreatedDelegate OnCityCreated;
 
     void Update()
     {
@@ -50,25 +54,6 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
     }
 
-    public void EndTurn()
-    {
-        // First check to see if there are any units that have enqueued moves.
-            // Do those moves
-        // Now are any units waiting for orders? If so, halt EndTurn()
-
-        // Heal units that are resting
-
-        // Reset unit movement
-        foreach(Unit u in units)
-        {
-            u.RefreshMovement();
-        }
-
-
-        // Go to next player
-
-    }
-
     public GameObject HexPrefab;
 
     public Mesh MeshWater;
@@ -86,6 +71,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     public Material MatDesert;
 
     public GameObject UnitDwarfPrefab;
+    public GameObject CityPrefab;
 
     // Tiles with height above whatever, is a whatever
     [System.NonSerialized] public float HeightMountain = 1f;
@@ -111,7 +97,17 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     // TODO: Separate unit list for each player
     private HashSet<Unit> units;
     private Dictionary<Unit, GameObject> unitToGameObjectMap;
+    public Unit[] Units
+    {
+        get { return units.ToArray(); }
+    }
 
+    private HashSet<City> cities;
+    private Dictionary<City, GameObject> cityToGameObjectMap;
+    public City[] Cities
+    {
+        get { return cities.ToArray(); }
+    }
 
     public Hex GetHexAt(int x, int y)
     {
@@ -241,6 +237,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
                 Hex h = hexes[column,row];
                 GameObject hexGO = hexToGameObjectMap[h];
 
+                HexComponent hexComp = hexGO.GetComponentInChildren<HexComponent>();
                 MeshRenderer mr = hexGO.GetComponentInChildren<MeshRenderer>();
                 MeshFilter mf = hexGO.GetComponentInChildren<MeshFilter>();
 
@@ -304,6 +301,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
                 {
                     h.ElevationType = Hex.ELEVATION_TYPE.HILL;
                     mf.mesh = MeshHill;
+                    hexComp.VerticalOffset = 0.25f;
                 }
                 else if(h.Elevation >= HeightFlat)
                 {
@@ -352,9 +350,42 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         unit.SetHex(myHex);
 
         GameObject unitGO = (GameObject)Instantiate(prefab, myHexGO.transform.position, Quaternion.identity, myHexGO.transform);
-        unit.OnUnitMoved += unitGO.GetComponent<UnitView>().OnUnitMoved;
+        unit.OnObjectMoved += unitGO.GetComponent<UnitView>().OnUnitMoved;
 
         units.Add(unit);
         unitToGameObjectMap.Add(unit, unitGO);
+    }
+
+    public void SpawnCityAt( City city, GameObject prefab, int q, int r )
+    {
+        Debug.Log("SpawnCityAt");
+        if(cities == null)
+        {
+            cities = new HashSet<City>();
+            cityToGameObjectMap = new Dictionary<City, GameObject>();
+        }
+
+        Hex myHex = GetHexAt(q, r);
+        GameObject myHexGO = hexToGameObjectMap[myHex];
+
+        try
+        {
+            city.SetHex(myHex);
+        }
+        catch(UnityException e)
+        {
+            Debug.LogError(e.Message);
+            return;
+        }
+
+        GameObject cityGO = (GameObject)Instantiate(prefab, myHexGO.transform.position, Quaternion.identity, myHexGO.transform);
+
+        cities.Add(city);
+        cityToGameObjectMap.Add(city, cityGO);
+
+        if(OnCityCreated != null)
+        {
+            OnCityCreated(city, cityGO);
+        }
     }
 }

@@ -22,9 +22,17 @@ public class UnitView : MonoBehaviour {
         // Our correct position when we aren't moving, is to be at
         // 0,0 local position relative to our parent.
 
-        this.transform.position = oldHex.PositionFromCamera();
+        // TODO: Get rid of VerticalOffset and instead use a raycast to determine correct height
+        // on each frame.
+
+        Vector3 oldPosition = oldHex.PositionFromCamera();
         newPosition = newHex.PositionFromCamera();
         currentVelocity = Vector3.zero;
+
+        // TODO:  newPosition's Y component needs to be set from HexComponent's VerticalOffset
+        oldPosition.y += oldHex.HexMap.GetHexGO(oldHex).GetComponent<HexComponent>().VerticalOffset;
+        newPosition.y += newHex.HexMap.GetHexGO(newHex).GetComponent<HexComponent>().VerticalOffset;
+        this.transform.position = oldPosition;
 
         if( Vector3.Distance(this.transform.position, newPosition) > 2 )
         {

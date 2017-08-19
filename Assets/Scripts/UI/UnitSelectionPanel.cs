@@ -14,6 +14,8 @@ public class UnitSelectionPanel : MonoBehaviour {
     public Text Movement;
     public Text HexPath;
 
+    public GameObject CityBuildButton;
+
     MouseController mouseController;
 	
 	// Update is called once per frame
@@ -32,6 +34,16 @@ public class UnitSelectionPanel : MonoBehaviour {
 
             Hex[] hexPath = mouseController.SelectedUnit.GetHexPath();
             HexPath.text  = hexPath == null ? "0" : hexPath.Length.ToString();
+
+
+            if( mouseController.SelectedUnit.CanBuildCities && mouseController.SelectedUnit.Hex.City == null)
+            {
+                CityBuildButton.SetActive( true );
+            }
+            else
+            {
+                CityBuildButton.SetActive( false );
+            }
 
         }
 

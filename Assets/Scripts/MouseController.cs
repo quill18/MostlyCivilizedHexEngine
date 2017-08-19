@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class MouseController : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class MouseController : MonoBehaviour
     }
 
     public GameObject UnitSelectionPanel;
+    public GameObject CitySelectionPanel;
 
     // Generic bookkeeping variables
     HexMap hexMap;
@@ -33,8 +35,27 @@ public class MouseController : MonoBehaviour
     public Unit SelectedUnit {
         get { return __selectedUnit; }   
         set {
+            __selectedUnit = null;
+            if(__selectedCity != null)
+                SelectedCity = null;
+            
             __selectedUnit = value;
             UnitSelectionPanel.SetActive( __selectedUnit != null );
+        }
+    }
+
+    City __selectedCity = null;
+    public City SelectedCity {
+        get { return __selectedCity; }   
+        set {
+            __selectedCity = null;
+            if(__selectedUnit != null)
+                SelectedUnit = null;
+            
+            __selectedCity = value;
+            CancelUpdateFunc();
+            CitySelectionPanel.SetActive( __selectedCity != null );
+            Update_CurrentFunc = Update_CityView;
         }
     }
 
@@ -107,6 +128,16 @@ public class MouseController : MonoBehaviour
 
     void Update_DetectModeStart()
     {
+        // Check here(?) to see if we are over a UI element,
+        // if so -- ignore mouse clicks and such.
+        if( EventSystem.current.IsPointerOverGameObject() )
+        {
+            // TODO: Do we want to ignore ALL GUI objects?  Consider
+            // things like unit health bars, resource icons, etc...
+            // Although, if those are set to NotInteractive or Not Block
+            // Raycasts, maybe this will return false for them anyway.
+            return;
+        }
 
         if (Input.GetMouseButtonDown (0)) 
         {
@@ -121,7 +152,7 @@ public class MouseController : MonoBehaviour
             // TODO: Are we clicking on a hex with a unit?
             //          If so, select it
 
-            Unit[] us = hexUnderMouse.Units();
+            Unit[] us = hexUnderMouse.Units;
 
             // TODO: Implement cycling through multiple units in the same tile
 
@@ -287,5 +318,14 @@ public class MouseController : MonoBehaviour
 
 
     }
+
+    void Update_CityView()
+    {
+        // Can you still click on a unit you see during city view?
+
+        Update_DetectModeStart();
+    }
+
+
 
 }

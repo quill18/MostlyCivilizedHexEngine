@@ -4,18 +4,17 @@ using UnityEngine;
 using QPath;
 using System.Linq;
 
-public class Unit : IQPathUnit {
+public class Unit : MapObject, IQPathUnit {
 
-    public string Name = "Dwarf";
-    public int HitPoints = 100;
+    public Unit()
+    {
+        Name = "Dwarf";
+    }
+
     public int Strenth = 8;
     public int Movement = 2;
     public int MovementRemaining = 2;
-
-    public Hex Hex  { get; protected set; }
-
-    public delegate void UnitMovedDelegate ( Hex oldHex, Hex newHex );
-    public event UnitMovedDelegate OnUnitMoved;
+    public bool CanBuildCities = false;
 
     /// <summary>
     /// List of hexes to walk through (from pathfinder).
@@ -25,24 +24,6 @@ public class Unit : IQPathUnit {
 
     // TODO: This should probably be moved to some kind of central option/config file
     const bool MOVEMENT_RULES_LIKE_CIV6 = true;
-
-    public void SetHex( Hex newHex )
-    {
-        Hex oldHex = Hex;
-        if(Hex != null)
-        {
-            Hex.RemoveUnit(this);
-        }
-
-        Hex = newHex;
-
-        Hex.AddUnit(this);
-
-        if(OnUnitMoved != null)
-        {
-            OnUnitMoved(oldHex, newHex);
-        }
-    }
 
     public void DUMMY_PATHING_FUNCTION()
     {
@@ -243,6 +224,19 @@ public class Unit : IQPathUnit {
         return turnsToDateWhole + turnsUsedAfterThismove;
 
     }
+
+    override public void SetHex( Hex newHex )
+    {
+        if(Hex != null)
+        {
+            Hex.RemoveUnit(this);
+        }
+
+        base.SetHex( newHex );
+
+        Hex.AddUnit(this);
+    }
+
 
     /// <summary>
     /// Turn cost to enter a hex (i.e. 0.5 turns if a movement cost is 1 and we have 2 max movement)

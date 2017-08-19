@@ -53,6 +53,12 @@ public class Hex : IQPathTile {
     float radius = 1f;
 
     HashSet<Unit> units;
+    public Unit[] Units { 
+        get{
+            return units.ToArray();
+        }
+    }
+    public City City { get; protected set; }
 
     public override string ToString()
     {
@@ -171,9 +177,31 @@ public class Hex : IQPathTile {
         }
     }
 
-    public Unit[] Units()
+    public void AddCity( City city )
     {
-        return units.ToArray();
+        if(this.City != null)
+        {
+            throw new UnityException("Trying to add a city to a hex that already has one!");
+        }
+
+        this.City = city;
+    }
+
+    public void RemoveCity( City city )
+    {
+        if(this.City == null)
+        {
+            Debug.LogError("Trying to remove a city where there isn't one!");
+            return;
+        }
+
+        if(this.City != city)
+        {
+            Debug.LogError("Trying to remove a city that isn't ours!");
+            return;
+        }
+
+        this.City = null;
     }
 
     /// <summary>

@@ -14,8 +14,10 @@ public class HexMap_Continent : HexMap {
         int numContinents = 3;
         int continentSpacing = NumColumns / numContinents;
 
-
+        // Uncomment this to generate the same "random" terrain every time.
         Random.InitState(0);
+
+
         for (int c = 0; c < numContinents; c++)
         {
             // Make some kind of raised area
@@ -77,7 +79,14 @@ public class HexMap_Continent : HexMap {
         UpdateHexVisuals();
 
         Unit unit = new Unit();
+
+        // For development, turn on CanBuildCities on this unit
+        unit.CanBuildCities = true;
+
         SpawnUnitAt(unit, UnitDwarfPrefab, 36, 15);
+
+        City city = new City();
+        SpawnCityAt(city, CityPrefab, 35, 15);
     }
 
     void ElevateArea(int q, int r, int range, float centerHeight = .8f)
