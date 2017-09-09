@@ -9,13 +9,13 @@ public class BuildCityButton : MonoBehaviour {
         City city = new City();
 
         HexMap map = GameObject.FindObjectOfType<HexMap>();
-        MouseController mc = GameObject.FindObjectOfType<MouseController>();
+        SelectionController sc = GameObject.FindObjectOfType<SelectionController>();
 
         map.SpawnCityAt(
             city,
             map.CityPrefab,
-            mc.SelectedUnit.Hex.Q,
-            mc.SelectedUnit.Hex.R
+            sc.SelectedUnit.Hex.Q,
+            sc.SelectedUnit.Hex.R
         );
     }
 	

@@ -12,6 +12,6 @@ public class CityNameplate : MonoBehaviour, IPointerClickHandler {
     {
         //MapObjectNamePlate monp = GetComponent<MapObjectNamePlate>();
 
-        GameObject.FindObjectOfType<MouseController>().SelectedCity = MyCity;
+        GameObject.FindObjectOfType<SelectionController>().SelectedCity = MyCity;
     }
 }

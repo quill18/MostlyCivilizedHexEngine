@@ -7,7 +7,7 @@ public class UnitSelectionPanel : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        mouseController = GameObject.FindObjectOfType<MouseController>();
+        selectionController = GameObject.FindObjectOfType<SelectionController>();
 	}
 
     public Text Title;
@@ -16,27 +16,27 @@ public class UnitSelectionPanel : MonoBehaviour {
 
     public GameObject CityBuildButton;
 
-    MouseController mouseController;
-	
+    SelectionController selectionController;
+    	
 	// Update is called once per frame
 	void Update () {
 		
-        if(mouseController.SelectedUnit != null)
+        if(selectionController.SelectedUnit != null)
         {
 
-            Title.text    = mouseController.SelectedUnit.Name;
+            Title.text    = selectionController.SelectedUnit.Name;
 
             Movement.text = string.Format(
                 "{0}/{1}", 
-                mouseController.SelectedUnit.MovementRemaining, 
-                mouseController.SelectedUnit.Movement
+                selectionController.SelectedUnit.MovementRemaining, 
+                selectionController.SelectedUnit.Movement
             );
 
-            Hex[] hexPath = mouseController.SelectedUnit.GetHexPath();
+            Hex[] hexPath = selectionController.SelectedUnit.GetHexPath();
             HexPath.text  = hexPath == null ? "0" : hexPath.Length.ToString();
 
 
-            if( mouseController.SelectedUnit.CanBuildCities && mouseController.SelectedUnit.Hex.City == null)
+            if( selectionController.SelectedUnit.CanBuildCities && selectionController.SelectedUnit.Hex.City == null)
             {
                 CityBuildButton.SetActive( true );
             }

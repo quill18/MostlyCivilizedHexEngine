@@ -15,6 +15,8 @@ public class Unit : MapObject, IQPathUnit {
     public int Movement = 2;
     public int MovementRemaining = 2;
     public bool CanBuildCities = false;
+    public bool SkipThisUnit = false;
+
 
     /// <summary>
     /// List of hexes to walk through (from pathfinder).
@@ -47,11 +49,13 @@ public class Unit : MapObject, IQPathUnit {
 
     public void ClearHexPath()
     {
+        SkipThisUnit = false;
         this.hexPath = new List<Hex>();
     }
 
     public void SetHexPath( Hex[] hexArray )
     {
+        SkipThisUnit = false;
         this.hexPath = new List<Hex>( hexArray );
     }
 
@@ -60,8 +64,18 @@ public class Unit : MapObject, IQPathUnit {
         return (this.hexPath == null ) ? null : this.hexPath.ToArray();
     }
 
+    public int GetHexPathLength()
+    {
+        return this.hexPath.Count;
+    }
+
     public bool UnitWaitingForOrders()
     {
+        if(SkipThisUnit)
+        {
+            return false;
+        }
+
         // Returns true if we have movement left but nothing queued
         if( 
             MovementRemaining > 0 && 
@@ -77,6 +91,7 @@ public class Unit : MapObject, IQPathUnit {
 
     public void RefreshMovement()
     {
+        SkipThisUnit = false;
         MovementRemaining = Movement;
     }
 
@@ -237,6 +252,12 @@ public class Unit : MapObject, IQPathUnit {
         Hex.AddUnit(this);
     }
 
+    override public void Destroy(  )
+    {
+        base.Destroy(  );
+
+        Hex.RemoveUnit(this);
+    }
 
     /// <summary>
     /// Turn cost to enter a hex (i.e. 0.5 turns if a movement cost is 1 and we have 2 max movement)

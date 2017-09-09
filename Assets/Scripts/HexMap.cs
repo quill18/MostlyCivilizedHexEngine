@@ -8,6 +8,9 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
 	// Use this for initialization
 	void Start () {
+
+        GeneratePlayers( 6 );
+
         GenerateMap();
 	}
 
@@ -15,6 +18,19 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
     public delegate void CityCreatedDelegate ( City city, GameObject cityGO );
     public event CityCreatedDelegate OnCityCreated;
+
+    void GeneratePlayers( int numPlayers )
+    {
+        Players = new Player[numPlayers];
+        for (int i = 0; i < numPlayers; i++)
+        {
+            Players[i] = new Player( "Player " + (i+1).ToString() );
+            Players[i].Type = Player.PlayerType.AI;
+        }
+        //CurrentPlayer = Players[0];
+        Players[0].Type = Player.PlayerType.LOCAL;
+        currentPlayerIndex = 0;
+    }
 
     void Update()
     {
@@ -27,12 +43,9 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
     IEnumerator DoAllUnitMoves()
     {
-        if(units != null)
+        foreach(Unit u in CurrentPlayer.Units)
         {
-            foreach(Unit u in units)
-            {
-                yield return DoUnitMoves( u );
-            }
+            yield return DoUnitMoves( u );
         }
     }
 
@@ -73,6 +86,8 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     public GameObject UnitDwarfPrefab;
     public GameObject CityPrefab;
 
+    public int TurnNumber = 0;
+
     // Tiles with height above whatever, is a whatever
     [System.NonSerialized] public float HeightMountain = 1f;
     [System.NonSerialized] public float HeightHill = 0.6f;
@@ -94,20 +109,29 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     private Dictionary<Hex, GameObject> hexToGameObjectMap;
     private Dictionary<GameObject, Hex> gameObjectToHexMap;
 
-    // TODO: Separate unit list for each player
-    private HashSet<Unit> units;
-    private Dictionary<Unit, GameObject> unitToGameObjectMap;
-    public Unit[] Units
+    public Player[] Players;
+    int currentPlayerIndex = 0;
+    public Player CurrentPlayer 
     {
-        get { return units.ToArray(); }
+        get { return Players[currentPlayerIndex]; }
     }
 
-    private HashSet<City> cities;
-    private Dictionary<City, GameObject> cityToGameObjectMap;
-    public City[] Cities
+    public void AdvanceToNextPlayer()
     {
-        get { return cities.ToArray(); }
+        currentPlayerIndex = (currentPlayerIndex + 1) % Players.Length;
+
+        if(currentPlayerIndex == 0)
+        {
+            // New turn has begun!
+            TurnNumber++;
+            Debug.Log("STARTING TURN: " + TurnNumber);
+        }
+
+        Debug.Log("Starting turn for player index: " + currentPlayerIndex + " -- " + CurrentPlayer.PlayerName + " -- " + CurrentPlayer.Type.ToString());
     }
+
+    private Dictionary<Unit, GameObject> unitToGameObjectMap;
+    private Dictionary<City, GameObject> cityToGameObjectMap;
 
     public Hex GetHexAt(int x, int y)
     {
@@ -159,6 +183,16 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         if( hexToGameObjectMap.ContainsKey(h) )
         {
             return hexToGameObjectMap[h];
+        }
+
+        return null;
+    }
+
+    public GameObject GetUnitGO(Unit c)
+    {
+        if( unitToGameObjectMap.ContainsKey(c) )
+        {
+            return unitToGameObjectMap[c];
         }
 
         return null;
@@ -339,9 +373,8 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
     public void SpawnUnitAt( Unit unit, GameObject prefab, int q, int r )
     {
-        if(units == null)
+        if(unitToGameObjectMap == null)
         {
-            units = new HashSet<Unit>();
             unitToGameObjectMap = new Dictionary<Unit, GameObject>();
         }
 
@@ -352,16 +385,23 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         GameObject unitGO = (GameObject)Instantiate(prefab, myHexGO.transform.position, Quaternion.identity, myHexGO.transform);
         unit.OnObjectMoved += unitGO.GetComponent<UnitView>().OnUnitMoved;
 
-        units.Add(unit);
+        CurrentPlayer.AddUnit(unit);
+        unit.OnObjectDestroyed += OnUnitDestroyed;
         unitToGameObjectMap.Add(unit, unitGO);
+    }
+
+    public void OnUnitDestroyed( MapObject mo )
+    {
+        GameObject go = unitToGameObjectMap[(Unit)mo];
+        unitToGameObjectMap.Remove((Unit)mo);
+        Destroy(go);
     }
 
     public void SpawnCityAt( City city, GameObject prefab, int q, int r )
     {
         Debug.Log("SpawnCityAt");
-        if(cities == null)
+        if(cityToGameObjectMap == null)
         {
-            cities = new HashSet<City>();
             cityToGameObjectMap = new Dictionary<City, GameObject>();
         }
 
@@ -380,7 +420,8 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
         GameObject cityGO = (GameObject)Instantiate(prefab, myHexGO.transform.position, Quaternion.identity, myHexGO.transform);
 
-        cities.Add(city);
+        CurrentPlayer.AddCity(city);
+        city.OnObjectDestroyed += OnCityDestroyed;
         cityToGameObjectMap.Add(city, cityGO);
 
         if(OnCityCreated != null)
@@ -388,4 +429,13 @@ public class HexMap : MonoBehaviour, IQPathWorld {
             OnCityCreated(city, cityGO);
         }
     }
+
+    public void OnCityDestroyed( MapObject mo )
+    {
+        GameObject go = cityToGameObjectMap[(City)mo];
+        cityToGameObjectMap.Remove((City)mo);
+        Destroy(go);
+    }
+
+
 }
