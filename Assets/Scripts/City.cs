@@ -43,6 +43,12 @@ public class City : MapObject
         }
     }
 
+    public BuildingBlueprint[] GetPossibleBuildings()
+    {
+        // TODO: Apply tech/uniqueness filters
+        return BuildingDatabase.GetListOfBuilding();
+    }
+
     void EXAMPLE()
     {
         buildingJob = new BuildingJob(
